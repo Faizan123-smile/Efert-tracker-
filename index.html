@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="script.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: linear-gradient(to right top, #d1fae5, #a7f3d0, #7ee7b6, #56d39a, #2fbf71);
+            min-height: 100vh;
+            display: block;
+            padding: 1rem;
+            overflow-x: hidden; /* Prevent horizontal scroll during potential transitions */
+        }
+
+        /* Styling for the attractive splash screen */
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        #splashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* More attractive background gradient */
+            background-image: linear-gradient(to bottom right, #60a5fa, #3b82f6, #2563eb); /* Blue gradient */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100; /* Ensure it's on top */
+            transition: opacity 0.5s ease-out; /* Fade out transition */
+            opacity: 1; /* Start fully visible */
+            color: #fff; /* White text color for contrast */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Subtle text shadow */
+        }
+
+        #splashScreen h1 {
+            font-size: 3rem; /* Larger heading */
+            margin-bottom: 1rem;
+            animation: scaleIn 0.8s ease-out forwards; /* Apply scale-in animation */
+        }
+
+        #splashScreen p {
+            font-size: 1.5rem; /* Larger paragraph text */
+            animation: scaleIn 0.8s ease-out forwards 0.2s; /* Apply scale-in animation with a slight delay */
+        }
+
+        #splashScreen.fade-out {
+            opacity: 0; /* Fade out state */
+            pointer-events: none; /* Prevent interaction while fading */
+        }
+
+        /* Initially hide the main content */
+        #appContent {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+
+    <div id="splashScreen">
+        <h1 class="text-4xl font-bold text-white mb-4">Welcome to Engro Leaves Tracker</h1>
+        <p class="text-lg text-gray-200">Prepared by : Faizan Younas</p>
+    </div>
+
+    <div id="appContent" class="container mx-auto max-w-2xl bg-white shadow-lg rounded-lg p-8 mt-10">
+        <h1 class="text-4xl font-bold mb-8 text-center text-gray-800">
+            <i class="fas fa-calendar-alt text-blue-500 mr-3"></i> Engro Leaves Tracker
+        </h1>
+        <div class="mb-10 p-6 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl shadow-inner">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700 flex items-center">
+                 <i class="fas fa-cog text-blue-600 mr-3"></i> Set Initial Balances
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="initialAnnual" class="block text-gray-700 text-sm font-bold mb-2">Annual Leave (Current Year)</label>
+                    <input type="number" id="initialAnnual" value="30" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label for="initialAnnualCarryover" class="block text-gray-700 text-sm font-bold mb-2">Annual Leave (Carryover)</label>
+                    <input type="number" id="initialAnnualCarryover" value="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label for="initialCasual" class="block text-gray-700 text-sm font-bold mb-2">Casual Leave</label>
+                    <input type="number" id="initialCasual" value="10" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-green-400">
+                </div>
+                <div>
+                    <label for="initialMedical" class="block text-gray-700 text-sm font-bold mb-2">Medical Leave (Current Year)</label>
+                    <input type="number" id="initialMedical" value="16" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-red-400">
+                </div>
+                <div>
+                    <label for="initialMedicalCarryover" class="block text-gray-700 text-sm font-bold mb-2">Medical Leave (Carryover)</label>
+                    <input type="number" id="initialMedicalCarryover" value="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-red-400">
+                </div>
+            </div>
+            <button id="setBalancesBtn" class="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:shadow-outline w-full transition duration-300 ease-in-out transform hover:scale-105">
+                 <i class="fas fa-check-circle mr-2"></i> Set Balances
+            </button>
+             <button id="resetCarryoverBtn" class="mt-4 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:shadow-outline w-full transition duration-300 ease-in-out transform hover:scale-105">
+                 <i class="fas fa-undo-alt mr-2"></i> Reset Carryover Leaves
+            </button>
+            <p class="text-sm text-gray-600 mt-4 text-center">Note: Total Annual Leave is capped at 60 days and Medical Leave is capped at 32 days.</p>
+        </div>
+
+        <div id="currentBalancesSection" class="mb-10 p-6 bg-gradient-to-r from-green-50 to-green-100 rounded-xl shadow-inner">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700 flex items-center">
+                 <i class="fas fa-chart-bar text-green-600 mr-3"></i> Current Balances
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div class="p-5 bg-blue-200 rounded-lg shadow-md">
+                    <i class="fas fa-sun text-blue-700 text-3xl mb-2"></i>
+                    <p class="text-lg font-medium text-blue-900">Annual Leave:</p>
+                    <p id="currentAnnual" class="text-4xl font-bold text-blue-800 mt-1">0</p>
+                </div>
+                <div class="p-5 bg-green-200 rounded-lg shadow-md">
+                    <i class="fas fa-couch text-green-700 text-3xl mb-2"></i>
+                    <p class="text-lg font-medium text-green-900">Casual Leave:</p>
+                    <p id="currentCasual" class="text-4xl font-bold text-green-800 mt-1">0</p>
+                </div>
+                <div class="p-5 bg-red-200 rounded-lg shadow-md">
+                     <i class="fas fa-heartbeat text-red-700 text-3xl mb-2"></i>
+                    <p class="text-lg font-medium text-red-900">Medical Leave:</p>
+                    <p id="currentMedical" class="text-4xl font-bold text-red-800 mt-1">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-10 p-6 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-xl shadow-inner">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700 flex items-center">
+                 <i class="fas fa-plus-circle text-yellow-600 mr-3"></i> Add Leave Request
+            </h2>
+            <form id="addRequestForm" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                <div>
+                    <label for="requestDateFrom" class="block text-gray-700 text-sm font-bold mb-2">Date From</label>
+                    <input type="date" id="requestDateFrom" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-yellow-400">
+                </div>
+                 <div>
+                    <label for="requestDateTo" class="block text-gray-700 text-sm font-bold mb-2">Date To</label>
+                    <input type="date" id="requestDateTo" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-yellow-400">
+                </div>
+                <div>
+                    <label for="requestType" class="block text-gray-700 text-sm font-bold mb-2">Leave Type</label>
+                    <select id="requestType" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-yellow-400">
+                        <option value="annual">Annual</option>
+                        <option value="casual">Casual</option>
+                        <option value="medical">Medical</option>
+                    </select>
+                </div>
+                <div class="md:col-span-3">
+                    <button type="submit" id="submitRequestBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:shadow-outline w-full transition duration-300 ease-in-out transform hover:scale-105">
+                         <i class="fas fa-paper-plane mr-2"></i> Submit Request
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="leaveHistorySection" class="p-6 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl shadow-inner">
+            <h2 class="text-2xl font-semibold mb-6 text-gray-700 flex items-center">
+                <i class="fas fa-history text-purple-600 mr-3"></i> Leave Request History
+            </h2>
+            <ul id="leaveHistoryList" class="divide-y divide-gray-300">
+                <li class="py-4 text-gray-600 text-center">No leave requests added yet.</li>
+            </ul>
+             <button id="downloadReportBtn" class="mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full focus:outline-none focus:shadow-outline w-full transition duration-300 ease-in-out transform hover:scale-105">
+                 <i class="fas fa-file-pdf mr-2"></i> Download Report
+            </button>
+        </div>
+    </div>
+
+    </body>
+</html>
+
